@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>pt-firebase-file-uploader demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  
+  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+  <link rel="import" href="../../polymerfire/firebase-app.html">
+  <link rel="import" href="../pt-firebase-file-uploader.html">
+
+
+  <custom-style>
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </custom-style>
+</head>
+
+<body>
+  <div class="vertical-section-container centered">
+    <h3>Basic pt-firebase-file-uploader demo</h3>
+    <demo-snippet>
+      <template>
+        <pt-firebase-file-uploader path='uploads/' accept="image/*" label="Firebase File Uploader" multiple></pt-firebase-file-uploader>
+      </template>
+    </demo-snippet>
+  </div>
+</body>
+
+</html>

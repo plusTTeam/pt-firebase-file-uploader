@@ -1,0 +1,20 @@
+{
+  "name": "pt-firebase-file-uploader",
+  "description": "Firebase File Uploader Element",
+  "main": "pt-firebase-file-uploader.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "paper-progress": "PolymerElements/paper-progress#^2.0.1",
+    "iron-icon": "PolymerElements/iron-icon#^2.0.1",
+    "paper-button": "PolymerElements/paper-button#^2.0.0",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^2.1.0"
+  },
+  "devDependencies": {
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+  },
+  "resolutions": {
+    "polymer": "^2.0.0"
+  }
+}

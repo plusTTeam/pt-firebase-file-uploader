@@ -1,0 +1,301 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../paper-progress/paper-progress.html" async>
+<link rel="import" href="../iron-icon/iron-icon.html" async>
+<link rel="import" href="../paper-button/paper-button.html" async>
+<link rel="import" href="../iron-iconset-svg/iron-iconset-svg.html" async>
+
+<dom-module id="pt-firebase-file-uploader">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #dragArea {
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        background: #e7e0e7;
+        cursor: pointer;
+        color: #747474;
+      }
+
+      .dragArea label {
+        margin: 50px;
+        cursor: pointer;
+      }
+
+      .imagesDiv {
+        padding: 10px;
+      }
+
+      #file {
+        user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
+        opacity: 0;
+        position: absolute;
+        z-index: -1;
+        display: none;
+        visibility: hidden;
+        tab-index: 0;
+      }
+
+      span {
+        font-weight: bold;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-content: center;
+      }
+
+      .fields paper-input {
+        width: 90%;
+        margin: auto;
+      }
+
+      paper-progress {
+        width: 100%;
+      }
+
+      iron-icon {
+        width: 20px;
+        vertical-align: top;
+      }
+
+      .closeIcon {
+        cursor: pointer;
+      }
+
+      .buttonSection {
+        text-align: right;
+      }
+
+      section {
+        margin: 10px 0;
+      }
+    </style>
+
+    <iron-iconset-svg name="icons" size="24">
+      <svg>
+        <defs>
+          <g id="close">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </g>
+          <g id="file">
+            <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z" />
+          </g>
+          <g id="upload">
+            <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+          </g>
+          <g id="file-download">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+          </g>
+        </defs>
+      </svg>
+    </iron-iconset-svg>
+
+    <label for="file">[[label]]</label>
+    <div id="dragArea" on-tap="_tapSelect" class="dragArea" on-dragover="_handleDragOver" on-dragleave="_handleDragLeave" on-drop="_handleFileSelect">
+      <label for="file">[[dragAreaText]]</label>
+    </div>
+
+    <input type="file" id="file" on-change="_handleFiles" accept="[[accept]]" tabindex="-1" multiple$="[[multiple]]" hidden>
+    <div class="imagesDiv">
+      <template is="dom-repeat" items="{{files}}">
+        <section>
+          <div class="header">
+            <span>
+              <iron-icon icon="file"></iron-icon>
+              <label id="description">[[item.name]]</label>
+            </span>
+
+            <iron-icon class="closeIcon" icon="close" on-tap="_deleteFile" data-filename$="[[item.name]]">
+            </iron-icon>
+          </div>
+
+          <paper-progress value="[[item.progress]]"></paper-progress>
+        </section>
+      </template>
+    </div>
+
+    <div class="buttonSection">
+      
+      <paper-button raised on-tap="uploadFiles" disabled$="[[isDownloading]]">
+        <iron-icon icon="upload"></iron-icon>
+        [[buttonText]]
+      </paper-button>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * `pt-firebase-file-uploader`
+     * Firebase File Uploader Element
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class PtFirebaseFileUploader extends Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() { return 'pt-firebase-file-uploader'; }
+      static get properties() {
+        return {
+          multiple: Boolean,
+          path: String,
+          dragAreaText: String,
+          label: String,
+          accept: String,
+          name: String,
+          buttonText: String
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.multiple = this.multiple != null || this.multiple != undefined ? this.multiple : true;
+        this.path = this.path || '/';
+        this.accept = this.accept || '*';
+        this.dragAreaText = this.dragAreatext || 'Drag your File(s) Here or Click Here to Select';
+        this.buttonText = this.buttonText || 'Upload';
+      }
+
+      _tapSelect(e) {
+        e.preventDefault();
+        this.$.file.click();
+      }
+
+      _handleDragOver(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        this.$.dragArea.style.border = 'dashed 3px #747474';
+      }
+
+      _handleDragLeave(e) {
+        this.$.dragArea.style.border = 'none';
+      }
+
+      _handleFileSelect(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this._processFiles(e.dataTransfer.files);
+        this.$.dragArea.style.border = 'none';
+      }
+
+      _handleFiles(e) {
+        this._processFiles(e.target.files);
+      }
+
+      _processFiles(filesParam) {
+        if (!this.files) {
+          this.set('files', []);
+        }
+        for (var i = 0; i < filesParam.length; i++) {
+          let file = this.files.find((item) => {
+            return item.name === filesParam[i].name;
+          });
+          if (!file) {
+            if (this.multiple) {
+              this.push('files', filesParam[i]);
+            } else {
+              this.set('files', [filesParam[i]]);
+            }
+          }
+
+        }
+      }
+
+      _deleteFile(e) {
+        let filename = e.target.dataset.filename || e.path[0].dataset.filename;
+        let file = this.files.find((item) => {
+          return item.name === filename;
+        });
+        var index = this.files.indexOf(file);
+        if (index > -1) {
+          if (file.$key) {
+            var self = this;
+            var storageRef = firebase.storage().ref(this._getPath() + file.name);
+            storageRef.delete().then(function () {
+              self.fire('upload-complete');
+            }).catch(function (error) {
+              console.error('Error deleting file', error);
+            });
+          }
+          this.splice('files', index, 1);
+        }
+      }
+
+      _uploadOnFirebase(path, files, index) {
+        if (firebase && files) {
+          if (files.$key || files.file) {
+            this._countFileUpload();
+          } else {
+            let storageRef = firebase.storage().ref(path + files.name);
+            var task = storageRef.put(files);
+            var self = this;
+            task.on('state_changed', function progress(snapshot) {
+              var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              self.set('files.' + index + '.progress', progress);
+            }, function error(err) {
+              console.error('Error uploading file', err);
+            }, function complete(e) {
+              storageRef.getDownloadURL().then(function (url) {
+                self.set('files.' + index + '.url', url);
+                self._countFileUpload();
+              });
+            });
+          }
+        }
+      }
+
+      _countFileUpload() {
+        this.countImagesUploaded++;
+        if (this.countImagesUploaded >= this.files.length) {
+          this._fireComplete(this.files);
+        }
+      }
+
+      uploadFiles() {
+        if (this.files && this.files.length > 0) {
+          this.isDownloading = true;
+          this.countImagesUploaded = 0;
+          for (var i = 0; i < this.files.length; i++) {
+            this._uploadOnFirebase(this.path, this.files[i], i);
+          }
+        } else {
+         this._fireComplete(this.files);
+        }
+      }
+
+      _fireComplete(files){
+        this.isDownloading = false;
+          this.dispatchEvent(new CustomEvent('upload-complete', {
+            bubbles: true,
+            composed: true,
+            detail: { files: files}
+          }));
+      }
+
+      get value() {
+        if (this.multiple) {
+          return this.files && this.files.length > 0 ? this.files.map((file) => {
+            return file.url ? file.url : '';
+          }) : [''];
+        } else {
+          return this.files[0] && this.files[0].url ? this.files[0].url : '';
+        }
+      }
+    }
+
+    window.customElements.define(PtFirebaseFileUploader.is, PtFirebaseFileUploader);
+  </script>
+</dom-module>
