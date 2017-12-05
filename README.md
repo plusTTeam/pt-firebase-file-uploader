@@ -1,4 +1,4 @@
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/plustteam/pt-select)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/plustteam/pt-firebase-file-uploader)
 # \<pt-firebase-file-uploader\>
 
 Firebase File Uploader Element
