@@ -83,7 +83,7 @@
       }
     </style>
 
-    <iron-iconset-svg name="icons" size="24">
+    <iron-iconset-svg name="firebaseFileUploader" size="24">
       <svg>
         <defs>
           <g id="close">
@@ -114,11 +114,11 @@
         <section>
           <div class="header">
             <span>
-              <iron-icon icon="file"></iron-icon>
+              <iron-icon icon="firebaseFileUploader:file"></iron-icon>
               <label id="description">[[item.name]]</label>
             </span>
 
-            <iron-icon class="closeIcon" icon="close" on-tap="_deleteFile" data-filename$="[[item.name]]">
+            <iron-icon class="closeIcon" icon="firebaseFileUploader:close" on-tap="_deleteFile" data-filename$="[[item.name]]">
             </iron-icon>
           </div>
 
@@ -130,7 +130,7 @@
     <div class="buttonSection">
       
       <paper-button raised on-tap="uploadFiles" disabled$="[[isDownloading]]">
-        <iron-icon icon="upload"></iron-icon>
+        <iron-icon icon="firebaseFileUploader:upload"></iron-icon>
         [[buttonText]]
       </paper-button>
     </div>

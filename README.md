@@ -14,6 +14,9 @@ Firebase File Uploader Element
     <script src="../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="pt-firebase-file-uploader.html">
     <style>
+      pt-firebase-file-uploader{
+        height:400px;
+      }    
     </style>
     <next-code-block></next-code-block>
   </template>
